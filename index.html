@@ -181,41 +181,8 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 1500);
 }
 
-// Seed with sample content
-input.value = `# Project Summary
-
-This is a **critical** update for the *Q3 roadmap*.
-
-## Action Items
-
-- Review the proposal
-- Approve the budget
-  - Sub-item: confirm with finance
-- Schedule kickoff
-
-> Note: All deadlines are subject to change.
-
-## Team Roster
-
-| Name  | Role     | Status   |
-|-------|----------|----------|
-| Alice | Engineer | Active   |
-| Bob   | Designer | Inactive |
-
-## Code Example
-
-\`\`\`python
-def greet(name):
-    return f"Hello, {name}"
-\`\`\`
-
-Use \`greet("World")\` to call it.
-
----
-
-*End of document.*
-`;
-render();
+input.value = '';
+input.placeholder = 'Type or paste your Markdown here...';
 </script>
 </body>
 </html>
