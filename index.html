@@ -100,10 +100,18 @@ renderer.list = function(token) {
 };
 
 renderer.listitem = function(item) {
-  let text = this.parser.parseInline(item.tokens.filter(t => t.type !== 'list'));
-  // Render nested lists
+  let text = '';
   for (const token of item.tokens) {
-    if (token.type === 'list') text += this.list(token);
+    if (token.type === 'list') {
+      text += this.list(token);
+    } else if (token.type === 'text' && token.tokens) {
+      text += this.parser.parseInline(token.tokens);
+    } else if (token.type === 'space') {
+      // skip
+    } else {
+      // Block-level tokens (paragraph, code, blockquote, etc.)
+      text += this.parser.parse([token]);
+    }
   }
   return `<li style="margin:3px 0;">${text}</li>`;
 };
