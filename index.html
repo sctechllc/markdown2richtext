@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markdown → Rich Text Converter</title>
+<title>MarkdownConvertor</title>
 <script src="https://cdn.jsdelivr.net/npm/marked@14.0.0/marked.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: #1a1a2e; color: #e0e0e0; }
-  .toolbar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #16213e; border-bottom: 1px solid #0f3460; }
-  .toolbar h1 { font-size: 16px; margin-right: auto; color: #e94560; }
-  .toolbar button, .toolbar label { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; background: #0f3460; color: #e0e0e0; transition: background .2s; }
-  .toolbar button:hover, .toolbar label:hover { background: #e94560; }
+  .toolbar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%); border-bottom: 2px solid #e94560; }
+  .toolbar h1 { font-size: 18px; margin-right: auto; color: #fff; font-weight: 600; letter-spacing: 0.5px; }
+  .toolbar h1 span { color: #e94560; }
+  .toolbar button, .toolbar label { padding: 7px 16px; border: 1px solid #0f3460; border-radius: 6px; cursor: pointer; font-size: 13px; background: #0f3460; color: #e0e0e0; transition: all .2s; }
+  .toolbar button:hover, .toolbar label:hover { background: #e94560; border-color: #e94560; transform: translateY(-1px); }
   .toolbar input[type="file"] { display: none; }
   .panels { display: flex; flex: 1; min-height: 0; }
-  .panel { flex: 1; display: flex; flex-direction: column; }
+  .panel { flex: 1; display: flex; flex-direction: column; min-width: 200px; overflow: hidden; }
   .panel-header { padding: 6px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; background: #16213e; border-bottom: 1px solid #0f3460; color: #888; }
   #input { flex: 1; resize: none; padding: 16px; border: none; outline: none; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 14px; line-height: 1.6; background: #1a1a2e; color: #e0e0e0; }
-  .divider { width: 1px; background: #0f3460; }
+  .divider { width: 5px; background: #0f3460; cursor: col-resize; transition: background .2s; position: relative; z-index: 10; }
+  .divider:hover, .divider.active { background: #e94560; }
   #preview { flex: 1; padding: 16px; overflow-y: auto; background: #fff; color: #222; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; }
   .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #0f3460; color: #fff; border-radius: 4px; opacity: 0; transition: opacity .3s; pointer-events: none; }
   .toast.show { opacity: 1; }
@@ -26,7 +28,7 @@
 <body>
 
 <div class="toolbar">
-  <h1>MD → Rich Text</h1>
+  <h1><span>Markdown</span>Convertor</h1>
   <button onclick="copyRich()">📋 Copy Rich Text</button>
   <label>📂 Upload .md<input type="file" accept=".md,.markdown,.txt" onchange="loadFile(event)"></label>
   <button onclick="clearAll()">✕ Clear</button>
@@ -191,6 +193,37 @@ function toast(msg) {
 
 input.value = '';
 input.placeholder = 'Type or paste your Markdown here...';
+
+// Resizable divider
+const divider = document.querySelector('.divider');
+const panels = document.querySelector('.panels');
+const leftPanel = panels.children[0];
+const rightPanel = panels.children[2];
+
+divider.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  divider.classList.add('active');
+  document.body.style.userSelect = 'none';
+  document.body.style.cursor = 'col-resize';
+  const onMove = (e) => {
+    const rect = panels.getBoundingClientRect();
+    let pct = ((e.clientX - rect.left) / rect.width) * 100;
+    pct = Math.min(85, Math.max(15, pct));
+    leftPanel.style.flex = 'none';
+    rightPanel.style.flex = 'none';
+    leftPanel.style.width = `calc(${pct}% - 3px)`;
+    rightPanel.style.width = `calc(${100 - pct}% - 2px)`;
+  };
+  const onUp = () => {
+    divider.classList.remove('active');
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
 </script>
 </body>
 </html>
